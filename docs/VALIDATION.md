@@ -29,7 +29,7 @@ The browser acceptance suite exercises the complete CSV workflow, invalid/duplic
 
 The complete browser acceptance scenario passed: actual CSV upload, cancellation, abrupt restart, two real SMTP sends, indexed search, 390px mobile layout and logout. The corrected Docker image also passed its runtime smoke check: Node 22/Alpine, UID 1000, development dependencies absent, with health/OpenAPI/Swagger/compiled frontend all returning HTTP 200.
 
-The implementation uses the real Google and Slack authorization endpoints. Automated checks cover authorization parameters, Google PKCE/nonce, session-bound state and rejected callback state. Local credential values have been added, but provider configuration and completed real account consent still need verification through the browser.
+The implementation uses the real Google and Slack authorization endpoints. Automated checks cover authorization parameters, Google PKCE/nonce, session-bound state and rejected callback state. Real Google account consent was completed on 6 October 2026: the provider callback succeeded, the following authenticated session request returned HTTP 200, and a non-demo Google identity was persisted in the application database. Slack installation and live channel delivery remain pending.
 
 The integration test routes only the Slack notification transport to a **local HTTP fixture**. That verifies throttling-triggered outbox dispatch and sender/hour deduplication. It does **not** prove an actual Slack installation or receipt in a workspace. Complete the OAuth installation and show a real message in the selected Slack channel before claiming this requirement verified.
 
@@ -37,7 +37,7 @@ The local technical preview uses clearly labelled demo access and real Ethereal 
 
 ## Reproduce
 
-GitHub's [quality workflow](https://github.com/VanshKaushal/reachinbox-scheduler/actions/runs/37359353077) passed on Linux for initial commit `36110b9`, including strict TypeScript, unit contracts, production builds and a Docker build. The locally tested mobile interface also reports zero axe WCAG A/AA violations at 390px.
+GitHub's [quality workflow](https://github.com/VanshKaushal/reachinbox-scheduler/actions/runs/37361728435) passed on Linux for commit `c054623`, including strict TypeScript, unit contracts, production builds and a Docker build. The locally tested mobile interface also reports zero axe WCAG A/AA violations at 390px.
 
 Follow the README to start infrastructure and create both isolated test databases. Then run:
 
