@@ -90,23 +90,56 @@ test('real browser: CSV scheduling, restart recovery, SMTP delivery, indexed sea
   page,
 }) => {
   const errors: string[] = [];
+  const recording = process.env.RECORD_DEMO === 'true';
+  async function caption(message: string) {
+    if (!recording) return;
+    await page.evaluate((text) => {
+      let element = document.getElementById('demo-caption');
+      if (!element) {
+        element = document.createElement('div');
+        element.id = 'demo-caption';
+        element.setAttribute('aria-hidden', 'true');
+        element.style.cssText =
+          'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);width:760px;max-width:calc(100vw - 32px);padding:14px 20px;border-radius:12px;background:#172341;color:white;font:500 15px/1.5 sans-serif;box-shadow:0 8px 40px #17234140;z-index:9999;pointer-events:none;text-align:center';
+        document.body.append(element);
+      }
+      element.textContent = `TECHNICAL PREVIEW · ${text}`;
+    }, message);
+    await page.waitForTimeout(1500);
+  }
+  async function capture(path: string) {
+    await page.evaluate(() => {
+      const element = document.getElementById('demo-caption');
+      if (element) element.style.display = 'none';
+    });
+    await page.screenshot({ path, fullPage: true });
+    await page.evaluate(() => {
+      const element = document.getElementById('demo-caption');
+      if (element) element.style.display = '';
+    });
+  }
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('button', { name: 'Explore the local demo' })).toBeVisible();
-  await page.screenshot({ path: 'docs/screenshots/login.png', fullPage: true });
+  await capture('docs/screenshots/login.png');
+  await caption('Clearly labelled local demo access. Real database, queue, search and SMTP.');
   await page.getByRole('button', { name: 'Explore the local demo' }).click();
   await expect(page.getByRole('heading', { name: 'Email overview.' })).toBeVisible();
   await page.getByRole('button', { name: 'Sender accounts', exact: true }).click();
   await page.getByRole('button', { name: 'Add sender', exact: true }).click();
+  await caption(
+    'Create a distinct, real Ethereal SMTP sender. Credentials stay encrypted on the server.',
+  );
   const senderName = `Vansh · ${run}`;
   await page.getByLabel('Sender name', { exact: true }).fill(senderName);
   await page.getByRole('button', { name: 'Create sender', exact: true }).click();
   await expect(page.getByRole('heading', { name: senderName, exact: true })).toBeVisible({
     timeout: 60000,
   });
-  await page.screenshot({ path: 'docs/screenshots/senders.png', fullPage: true });
+  await capture('docs/screenshots/senders.png');
   await page.getByRole('button', { name: 'Email overview', exact: false }).click();
   await page.getByRole('button', { name: 'Compose new email' }).click();
+  await caption('Compose a campaign, import a CSV, and choose a future time and sending pace.');
   await page.getByLabel('From', { exact: false }).selectOption({
     label: await page.locator('#compose-sender option').filter({ hasText: senderName }).innerText(),
   });
@@ -141,7 +174,8 @@ test('real browser: CSV scheduling, restart recovery, SMTP delivery, indexed sea
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
       .violations,
   ).toEqual([]);
-  await page.screenshot({ path: 'docs/screenshots/compose.png', fullPage: true });
+  await capture('docs/screenshots/compose.png');
+  await caption('Three unique recipients; one duplicate removed and one invalid address excluded.');
   await page.getByRole('button', { name: 'Schedule emails', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeHidden();
   await page
@@ -153,9 +187,12 @@ test('real browser: CSV scheduling, restart recovery, SMTP delivery, indexed sea
   await expect(
     page.getByRole('button', { name: `View email to casey.${run}@example.com`, exact: true }),
   ).toHaveCount(0);
-  await page.screenshot({ path: 'docs/screenshots/dashboard.png', fullPage: true });
+  await capture('docs/screenshots/dashboard.png');
   // Abruptly stop both processes before the persisted schedule is due.
   expect(Date.now()).toBeLessThan(due);
+  await caption(
+    'Stop the API and worker before delivery. Persistent MySQL and Redis keep the schedule.',
+  );
   await stop(worker);
   await stop(api);
   await page.waitForTimeout(3000);
@@ -163,8 +200,12 @@ test('real browser: CSV scheduling, restart recovery, SMTP delivery, indexed sea
   await ready();
   worker = start('apps/api/dist/worker.js');
   await page.reload(); // Redis session survives API restart.
+  await caption('API and worker restarted. The saved session and scheduled emails survive.');
   await expect(page.getByRole('heading', { name: 'Email overview.' })).toBeVisible();
   await page.getByRole('tab', { name: 'Sent & history', exact: false }).click();
+  await caption(
+    'Waiting for the original due time. Delivery uses BullMQ delayed jobs, without cron.',
+  );
   await expect(
     page
       .locator('.email-table tbody tr')
@@ -177,6 +218,9 @@ test('real browser: CSV scheduling, restart recovery, SMTP delivery, indexed sea
       .filter({ hasText: `jamie.${run}@example.com` })
       .getByText('Sent', { exact: true }),
   ).toBeVisible({ timeout: 60000 });
+  await caption(
+    'Two actual messages accepted by Ethereal SMTP after restart. Each has one delivery attempt.',
+  );
   await page
     .getByRole('button', { name: `View email to alex.${run}@example.com`, exact: true })
     .click();
@@ -185,29 +229,42 @@ test('real browser: CSV scheduling, restart recovery, SMTP delivery, indexed sea
     'href',
     /^https:\/\/ethereal.email\/message\//,
   );
-  await page.screenshot({ path: 'docs/screenshots/delivery.png', fullPage: true });
+  await capture('docs/screenshots/delivery.png');
   await page.getByRole('button', { name: 'Close dialog' }).click();
   await page.getByRole('textbox', { name: 'Search emails', exact: true }).fill(`journey${run}`);
+  await caption('Search message content through the real Elasticsearch index.');
   await expect(
     page.locator('.email-table tbody tr').filter({ hasText: `alex.${run}@example.com` }),
   ).toBeVisible({ timeout: 20000 });
   await expect(page.getByText('Search powered by Elasticsearch')).toBeVisible();
   await page.getByRole('button', { name: 'Clear search' }).click();
   await page.getByRole('button', { name: 'Integrations', exact: true }).click();
-  await page.screenshot({ path: 'docs/screenshots/integrations.png', fullPage: true });
+  await capture('docs/screenshots/integrations.png');
+  await caption(
+    'Google and Slack use real OAuth flows. Account consent is verified separately from this local preview.',
+  );
   await page.getByRole('button', { name: 'Email overview', exact: false }).click();
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(async () => {
+    await Promise.all(
+      document.getAnimations().map((animation) => animation.finished.catch(() => {})),
+    );
+  });
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
     .toBe(true);
-  await page.screenshot({ path: 'docs/screenshots/mobile.png', fullPage: true });
+  await capture('docs/screenshots/mobile.png');
   await page.getByRole('button', { name: 'Open navigation' }).click();
   await page.getByRole('button', { name: 'Sender accounts', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Sender accounts.' })).toBeVisible();
+  await caption('Responsive mobile navigation and a table that scrolls within the screen.');
   await page.setViewportSize({ width: 1440, height: 1020 });
   await page.getByRole('button', { name: 'Open account menu' }).click();
   await page.getByRole('button', { name: 'Log out', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Explore the local demo' })).toBeVisible();
+  await caption(
+    'Logout destroys the server session and clears cached workspace data. See the README for architecture and checks.',
+  );
   expect(errors).toEqual([]);
   await page.close();
   const video = await page.video()?.path();

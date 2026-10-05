@@ -82,7 +82,10 @@ export async function processDelivery(
     const retryAt = quota.hitLimit
       ? quota.retryAt + (email.sequence_number % cap) * delayMs
       : quota.retryAt;
-    if (quota.hitLimit && email.status !== 'deferred')
+    if (
+      quota.hitLimit &&
+      (email.status !== 'deferred' || Math.abs(email.scheduled_at.getTime() - retryAt) > 50)
+    )
       await updateEmail(email.id, email.user_id, 'deferred', null, new Date(retryAt));
     return delayJob(job, retryAt, token);
   }

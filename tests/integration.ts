@@ -343,10 +343,14 @@ try {
   });
   assert.equal(throttle.response.status, 201);
   const throttled = await waitFor(async () => {
-    const state = await rows<{ status: string; scheduled_at: Date }>(
-      'SELECT status, scheduled_at FROM emails WHERE campaign_id = ?',
-      [throttle.data.id],
-    );
+    const state = await rows<{
+      id: string;
+      generation: number;
+      status: string;
+      scheduled_at: Date;
+    }>('SELECT id, generation, status, scheduled_at FROM emails WHERE campaign_id = ?', [
+      throttle.data.id,
+    ]);
     return state.filter((e) => e.status === 'sent').length === 2 &&
       state.filter((e) => e.status === 'deferred').length === 1
       ? state
@@ -354,6 +358,22 @@ try {
   });
   const deferred = throttled.find((e) => e.status === 'deferred')!;
   assert.equal(deferred.scheduled_at.getUTCHours(), new Date(Date.now() + 3600000).getUTCHours());
+  // Repeated exhaustion must keep the displayed SQL schedule aligned with the actual delayed job.
+  const deferredJob = await emailQueue.getJob(`${deferred.id}-${deferred.generation}`);
+  assert.ok(deferredJob);
+  await waitFor(async () => (await deferredJob.getState()) === 'delayed');
+  await execute('UPDATE emails SET scheduled_at = ? WHERE id = ?', [
+    new Date(Date.now() - 1000),
+    deferred.id,
+  ]);
+  await deferredJob.changeDelay(0);
+  await waitFor(async () => {
+    const [record] = await rows<{ scheduled_at: Date }>(
+      'SELECT scheduled_at FROM emails WHERE id = ?',
+      [deferred.id],
+    );
+    return record && record.scheduled_at.getTime() > Date.now() + 1000;
+  });
   await waitFor(async () => notifications.length === 1);
   assert.ok(notifications[0]!.text.includes(sender2.email));
   await sleep(1500);
@@ -361,6 +381,7 @@ try {
   check('Two workers enforce sender cap; overflow remains delayed for the next UTC hour', {
     sent: 2,
     deferred: 1,
+    repeatedDeferralScheduleUpdated: true,
   });
   check(
     'Rate-limit notification transport is delivered and deduplicated',

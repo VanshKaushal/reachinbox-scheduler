@@ -18,6 +18,7 @@
     "test": "vitest run",
     "test:integration": "tsx tests/integration.ts",
     "test:e2e": "npm run build && playwright test",
+    "record:demo": "npm run build && node scripts/record-demo.mjs",
     "format": "prettier --write apps scripts tests docs README.md package.json playwright.config.ts vitest.config.ts compose.yaml .github",
     "format:check": "prettier --check apps scripts tests docs README.md package.json playwright.config.ts vitest.config.ts compose.yaml .github",
     "db:migrate": "npm run db:migrate -w @reachinbox/api",

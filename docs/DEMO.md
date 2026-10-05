@@ -21,6 +21,8 @@ Keep the frame on the product and relevant terminal, not secrets. Use a fresh se
 
 ## Restart commands
 
+To regenerate the captioned 1440×1020 local technical preview, prepare the isolated browser database as described in the README, then run `npm run record:demo`. The recording identifies each actual test action and distinguishes demo access from real OAuth consent. The included recording is 65 seconds long.
+
 In separate terminals:
 
 ```sh

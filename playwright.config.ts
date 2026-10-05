@@ -10,7 +10,7 @@ export default defineConfig({
     channel: 'chromium-headless-shell',
     viewport: { width: 1440, height: 1020 },
     timezoneId: 'Asia/Kolkata',
-    video: 'on',
+    video: { mode: 'on', size: { width: 1440, height: 1020 } },
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
