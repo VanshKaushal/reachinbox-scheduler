@@ -1,6 +1,7 @@
 node_modules/
 .npm-cache/
 .env
+client_secret*.json
 .env.*
 !.env.example
 dist/

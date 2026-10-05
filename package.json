@@ -23,6 +23,7 @@
     "format:check": "prettier --check apps scripts tests docs README.md package.json playwright.config.ts vitest.config.ts compose.yaml .github",
     "db:migrate": "npm run db:migrate -w @reachinbox/api",
     "smtp:create": "npm run smtp:create -w @reachinbox/api",
+    "google:import": "node scripts/import-google-client.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "start": "concurrently -n api,worker \"npm run start -w @reachinbox/api\" \"npm run worker -w @reachinbox/api\""
   },

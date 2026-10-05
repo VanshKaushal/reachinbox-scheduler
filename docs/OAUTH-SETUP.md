@@ -28,6 +28,14 @@ Keep client secrets in the gitignored `.env` file. Do not put them into the fron
 
 The callback must exactly match the registered URI, including scheme, hostname, port and path. Use `localhost`, not `127.0.0.1`, for the browser flow so the session cookie is shared with the callback. Only `openid`, `email`, and `profile` are requested.
 
+You can also download the client JSON from **Google Auth Platform → Clients → your Web application**. Keep it outside the repository, then run:
+
+```sh
+npm run google:import -- "C:/Users/your-name/Downloads/client_secret.json"
+```
+
+The helper verifies the Web client and registered callback, preserves other `.env` settings, and imports the ID/secret without displaying them. The full OAuth client ID ends in `.apps.googleusercontent.com`; the project ID, project number and client secret are separate fields.
+
 If Google reports `redirect_uri_mismatch`, inspect the authorized callback and `API_URL`. If it reports that the app is blocked in testing, add your chosen account under Audience/Test users. Provider configuration can take a short time to propagate.
 
 Official references: [Google consent configuration](https://developers.google.com/workspace/guides/configure-oauth-consent), [Web OAuth flow and ID-token verification](https://developers.google.com/identity/protocols/oauth2/web-server).
