@@ -1,0 +1,3 @@
+alex@example.com
+sam@example.com
+jordan@example.org

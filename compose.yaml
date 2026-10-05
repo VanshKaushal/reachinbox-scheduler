@@ -1,0 +1,98 @@
+name: reachinbox-scheduler
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: reachinbox
+      MYSQL_USER: reachinbox
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-reachinbox_dev}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-reachinbox_root_dev}
+    command: ['--default-time-zone=+00:00']
+    ports: ['127.0.0.1:3307:3306']
+    volumes: ['mysql-data:/var/lib/mysql']
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+  redis:
+    image: redis:7.4-alpine
+    command:
+      [
+        'redis-server',
+        '--appendonly',
+        'yes',
+        '--appendfsync',
+        'always',
+        '--maxmemory-policy',
+        'noeviction',
+      ]
+    ports: ['127.0.0.1:6380:6379']
+    volumes: ['redis-data:/data']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.4
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports: ['127.0.0.1:9201:9200']
+    volumes: ['elastic-data:/usr/share/elasticsearch/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9200/_cluster/health?wait_for_status=yellow']
+      interval: 10s
+      timeout: 10s
+      retries: 30
+    restart: unless-stopped
+  api:
+    profiles: ['full']
+    build: .
+    command: ['sh', '-c', 'node apps/api/dist/scripts/migrate.js && node apps/api/dist/server.js']
+    env_file: .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DEMO_MODE: ${DEMO_MODE:-false}
+      DATABASE_URL: mysql://reachinbox:${MYSQL_PASSWORD:-reachinbox_dev}@mysql:3306/reachinbox
+      REDIS_URL: redis://redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports: ['127.0.0.1:4000:4000']
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      elasticsearch: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+    restart: unless-stopped
+  worker:
+    profiles: ['full']
+    build: .
+    command: ['npm', 'run', 'worker', '-w', '@reachinbox/api']
+    env_file: .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DEMO_MODE: ${DEMO_MODE:-false}
+      DATABASE_URL: mysql://reachinbox:${MYSQL_PASSWORD:-reachinbox_dev}@mysql:3306/reachinbox
+      REDIS_URL: redis://redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+volumes:
+  mysql-data:
+  redis-data:
+  elastic-data:

@@ -1,0 +1,37 @@
+{
+  "name": "reachinbox-scheduler",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Persistent email scheduling, built for the ReachInbox engineering assignment.",
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,worker,web -c cyan,magenta,green \"npm run dev -w @reachinbox/api\" \"npm run worker:dev -w @reachinbox/api\" \"npm run dev -w @reachinbox/web\"",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "vitest run",
+    "test:integration": "tsx tests/integration.ts",
+    "test:e2e": "npm run build && playwright test",
+    "format": "prettier --write apps scripts tests docs README.md package.json playwright.config.ts vitest.config.ts compose.yaml .github",
+    "format:check": "prettier --check apps scripts tests docs README.md package.json playwright.config.ts vitest.config.ts compose.yaml .github",
+    "db:migrate": "npm run db:migrate -w @reachinbox/api",
+    "smtp:create": "npm run smtp:create -w @reachinbox/api",
+    "check": "npm run typecheck && npm test && npm run build",
+    "start": "concurrently -n api,worker \"npm run start -w @reachinbox/api\" \"npm run worker -w @reachinbox/api\""
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.56.0",
+    "concurrently": "^9.2.1",
+    "prettier": "^3.8.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  }
+}

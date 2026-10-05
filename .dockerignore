@@ -1,0 +1,10 @@
+node_modules
+.git
+.env
+.env.*
+.npm-cache
+.local
+artifacts
+test-results
+jd.md.txt
+prd.md.txt

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "login",
+    "violations": []
+  },
+  {
+    "name": "dashboard",
+    "violations": []
+  },
+  {
+    "name": "compose",
+    "violations": []
+  },
+  {
+    "name": "senders",
+    "violations": []
+  },
+  {
+    "name": "integrations",
+    "violations": []
+  }
+]

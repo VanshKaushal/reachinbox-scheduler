@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-10-05T18:53:02.017Z",
+  "startTime": "2026-10-05T18:48:51.623Z",
+  "duration": 81305.90400000001,
+  "expected": 1,
+  "skipped": 0,
+  "unexpected": 0,
+  "flaky": 0,
+  "scenarios": [
+    {
+      "title": "real browser: CSV scheduling, restart recovery, SMTP delivery, indexed search, cancellation and mobile",
+      "ok": true,
+      "results": [
+        {
+          "status": "passed",
+          "durationMs": 65591
+        }
+      ]
+    }
+  ]
+}

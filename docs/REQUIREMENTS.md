@@ -1,0 +1,26 @@
+# Assignment coverage
+
+| Requirement                             | Implementation                                                                                      | Verification                                                                            |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Express + TypeScript, SQL database      | Express 5, strict TypeScript, indexed MySQL tables and versioned migrations                         | Type checks, actual SQL integration suite                                               |
+| Persistent BullMQ scheduling, no cron   | SQL transaction/outbox, deterministic delayed jobs, Redis AOF and startup reconciliation            | Abrupt API/worker restart and replay checks                                             |
+| Configurable concurrency                | Independent worker process, `WORKER_CONCURRENCY`                                                    | Two active integration workers                                                          |
+| Minimum delay between sender deliveries | Atomic sender lease and post-attempt cooldown                                                       | Actual SMTP timing check; shared Redis gate                                             |
+| Shared hourly allowance                 | Redis server-time Lua reservation, server/sender/campaign cap                                       | 144 parallel requests, two-worker overflow                                              |
+| Reschedule excess work                  | BullMQ `moveToDelayed`, next fixed UTC hour                                                         | Third delivery stays deferred; no dropped job                                           |
+| Real Ethereal SMTP, multiple senders    | Distinct official test accounts; TLS SMTP; encrypted credentials                                    | Real accepted messages and Ethereal preview URLs                                        |
+| Elasticsearch search                    | Transactional index events; versioned writes; tenant filter                                         | Real body/subject/recipient indexed search                                              |
+| Queue monitoring                        | Authenticated administrator-only Bull Board                                                         | Access/tenant checks; live dashboard                                                    |
+| Real Google OAuth                       | Authorization code + state + nonce + PKCE; signed ID token verification                             | Redirect/state checks; account consent requires local credentials                       |
+| Profile header and logout               | Actual session profile; Redis session destruction; client cache cleanup                             | Complete browser acceptance scenario                                                    |
+| CSV/TXT compose                         | Parse, normalize, count, deduplicate and exclude invalid leads; sender/time/delay/cap               | Unit contracts and actual browser upload                                                |
+| Scheduled and sent/history tables       | Paging, status filters, details, local timestamps, real search                                      | Browser scheduling/delivery/search checks                                               |
+| Loading, empty and error states         | Skeletons, retry errors, empty prompts, toasts                                                      | Product screenshots and browser checks                                                  |
+| Slack connection and rate-limit message | Real OAuth-installed webhook; encrypted secrets; SQL notification outbox                            | Redirect/state + local transport fixture; real workspace proof requires account consent |
+| Disconnect/reconnect without redeploy   | Current SQL connection read at dispatch, revocation on disconnect                                   | Integration disconnect check; final OAuth reinstall demo                                |
+| Clean frontend and backend structure    | Typed modules, reusable UI/dialogs, formatting scripts, API documentation                           | Strict builds and formatting check                                                      |
+| Responsive, accessible UI               | Mobile navigation, constrained table scrolling, focus trap, labelled controls and readable contrast | Five axe scans and mobile browser check                                                 |
+| Private GitHub and reviewer access      | Private `VanshKaushal/reachinbox-scheduler`                                                         | Invitations sent to Mitrajit and Yadav036                                               |
+| README and demo under five minutes      | Architecture/setup/trade-offs, API examples, demo guide and technical preview                       | Final recording must show real Google and live Slack                                    |
+
+The provided Figma placeholder contained no design URL. No claim of pixel matching is made.

@@ -1,0 +1,92 @@
+{
+  "runId": "69f1935f",
+  "timestamp": "2026-10-05T18:31:49.090Z",
+  "status": "PASS",
+  "evidence": [
+    {
+      "name": "Isolated MySQL / Redis / Elasticsearch services are healthy",
+      "result": "PASS"
+    },
+    {
+      "name": "Authentication and CSRF protection reject unauthorized writes",
+      "result": "PASS"
+    },
+    {
+      "name": "Real OAuth authorization URLs, Google PKCE/nonce, and callback state rejection",
+      "result": "PASS",
+      "detail": "Full account consent flows need real OAuth app credentials."
+    },
+    {
+      "name": "Two distinct real Ethereal SMTP sender accounts created",
+      "result": "PASS"
+    },
+    {
+      "name": "Concurrent API idempotency, recipient deduplication, and exact delayed schedule persisted",
+      "result": "PASS"
+    },
+    {
+      "name": "Abrupt API/worker restart retains sessions and delayed jobs; sends once via real Ethereal SMTP",
+      "result": "PASS",
+      "detail": {
+        "recipients": 2,
+        "workers": 2,
+        "attemptsEach": 1,
+        "minimumGapMs": 396
+      }
+    },
+    {
+      "name": "Replayed completed delivery cannot resend an email",
+      "result": "PASS"
+    },
+    {
+      "name": "Scheduled/sent message content is searchable via actual Elasticsearch indexing",
+      "result": "PASS"
+    },
+    {
+      "name": "Atomic Redis quota cannot overshoot under 144 parallel reservation attempts",
+      "result": "PASS",
+      "detail": {
+        "allocated": 5,
+        "limit": 5
+      }
+    },
+    {
+      "name": "Two workers enforce sender cap; overflow remains delayed for the next UTC hour",
+      "result": "PASS",
+      "detail": {
+        "sent": 2,
+        "deferred": 1
+      }
+    },
+    {
+      "name": "Rate-limit notification transport is delivered and deduplicated",
+      "result": "PASS",
+      "detail": "Local HTTP fixture only. This is not evidence of a live Slack installation."
+    },
+    {
+      "name": "Slack disconnect updates persisted connection state without a redeploy",
+      "result": "PASS"
+    },
+    {
+      "name": "Tenant isolation protects SQL views, Elasticsearch search, details, and queue diagnostics",
+      "result": "PASS"
+    },
+    {
+      "name": "1001-recipient campaign commits complete email records and durable outbox work",
+      "result": "PASS",
+      "detail": {
+        "recipients": 1001,
+        "apiDurationMs": 418
+      }
+    },
+    {
+      "name": "Cancellation is durable and delivered messages cannot be manually retried",
+      "result": "PASS"
+    }
+  ],
+  "caveats": [
+    "Google and Slack full OAuth consent flows require real credentials.",
+    "Slack message transport uses a local test fixture; real SMTP and Elasticsearch are exercised."
+  ],
+  "failure": null
+}

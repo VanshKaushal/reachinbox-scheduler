@@ -1,0 +1,11 @@
+package-lock.json
+jd.md.txt
+prd.md.txt
+artifacts/
+.local/
+.npm-cache/
+node_modules/
+dist/
+test-results/
+playwright-report/
+.env
