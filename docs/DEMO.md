@@ -1,6 +1,12 @@
 # Five-minute demo guide
 
-The final submission should show **real Google login and a real Slack message**. A local preview video without those account setups is useful supporting evidence, but does not fulfill both mandatory live integration requirements.
+The [final captioned demo](recordings/final-demo.webm) is **2 minutes 16 seconds**, at 1440×1020. It combines an actual account demonstration with the existing technical acceptance recording.
+
+The first section reuses the user's existing authenticated **real Google OAuth session**, shows the profile and connected Slack workspace, creates a fresh real Ethereal sender, imports CSV leads, and schedules two recipients with an hourly cap of one. During the recording, one message is accepted by SMTP with one attempt, the other is deferred to the next UTC hour, and a **fresh real Slack webhook call succeeds**. Notification activity shows actual Delivered status. The sanitized result is in [`evidence/live-integrations.json`](evidence/live-integrations.json).
+
+The second section is explicitly labelled technical preview and uses local demo access with actual SQL, Redis, Elasticsearch and Ethereal SMTP. It shows cancellation, abrupt API/worker restart before delivery, session recovery, successful delivery, search, mobile navigation and logout.
+
+Google and Slack provider consent were completed manually before recording. The video does not replay the provider consent screens or include a screenshot of the Slack channel itself; it shows the real connected workspace, new live webhook dispatch and recorded delivery status. These boundaries are stated in the captions and validation evidence.
 
 ## Suggested recording (4 minutes 30 seconds)
 

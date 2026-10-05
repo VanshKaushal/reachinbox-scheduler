@@ -6,7 +6,7 @@ Schedule a campaign, restart the server, and keep your place. Sender limits are 
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
-[Watch the local technical preview](docs/recordings/technical-preview.webm) · [Review validation evidence](docs/VALIDATION.md) · [Assignment coverage](docs/REQUIREMENTS.md)
+[Watch the final demo — 2m 16s](docs/recordings/final-demo.webm) · [Review validation evidence](docs/VALIDATION.md) · [Assignment coverage](docs/REQUIREMENTS.md)
 
 ## Run locally
 
@@ -46,6 +46,8 @@ Google requests only `openid email profile`, verifies the signed ID token and ve
 Slack requests `incoming-webhook`, verifies a single-use session-bound state, exchanges the authorization code, and stores the user's webhook and bot token encrypted with AES-256-GCM. A real HTTPS POST sends the notification when the effective hourly allowance is reached. Notification failures retry in the outbox and do not stop email delivery. No connection means no notification. Disconnect takes effect immediately, and reconnect replaces credentials without a redeploy. Notifications are deduplicated per sender per UTC hour; notification delivery status appears in the dashboard.
 
 Keep `.env` private. No credential or webhook is returned by a read API. Set `QUEUE_ADMIN_EMAILS` to your Google email to enable the read-only Bull Board. Non-admin users cannot inspect other tenants' jobs.
+
+Both integrations were verified with real account consent on 6 October 2026. A live cap-one campaign sent one actual Ethereal message, deferred its second recipient to the next UTC hour, and delivered the rate-limit alert to Slack's real incoming webhook on its first attempt. See the [sanitized live evidence](docs/evidence/live-integrations.json) and [validation record](docs/VALIDATION.md).
 
 ## Architecture
 
@@ -150,21 +152,21 @@ Cookie: reachinbox.sid=<your-session-cookie>
 
 Choose an actual future timestamp when trying the example. Sample upload files are in [`examples/`](examples/).
 
-| Endpoint                              | Behavior                                 |
-| ------------------------------------- | ---------------------------------------- | ------------------------- |
-| `GET /api/emails?view=scheduled       | sent&q=...&page=1&pageSize=15`           | Tenant-scoped list/search |
-| `POST /api/campaigns`                 | Atomic schedule with request idempotency |
-| `GET /api/emails/:id`                 | Current status, body and preview         |
-| `DELETE /api/emails/:id`              | Cancel only scheduled/deferred delivery  |
-| `POST /api/emails/:id/retry`          | Retry a confirmed failure only           |
-| `GET /api/senders`                    | Sender identities, caps and live usage   |
-| `POST /api/senders/ethereal`          | Create a distinct test account           |
-| `POST /api/senders`                   | Verify/connect an existing account       |
-| `GET /api/overview`                   | Scoped metrics and worker presence       |
-| `GET /api/events`                     | Authenticated change stream              |
-| `GET /api/integrations/slack/connect` | Actual Slack authorization               |
-| `DELETE /api/integrations/slack`      | Disconnect and revoke                    |
-| `GET /api/notifications`              | Notification delivery history            |
+| Endpoint                                                  | Behavior                                                        |
+| --------------------------------------------------------- | --------------------------------------------------------------- |
+| `GET /api/emails?view=scheduled&q=...&page=1&pageSize=15` | Tenant-scoped list/search; `view=sent` selects delivery history |
+| `POST /api/campaigns`                                     | Atomic schedule with request idempotency                        |
+| `GET /api/emails/:id`                                     | Current status, body and preview                                |
+| `DELETE /api/emails/:id`                                  | Cancel only scheduled/deferred delivery                         |
+| `POST /api/emails/:id/retry`                              | Retry a confirmed failure only                                  |
+| `GET /api/senders`                                        | Sender identities, caps and live usage                          |
+| `POST /api/senders/ethereal`                              | Create a distinct test account                                  |
+| `POST /api/senders`                                       | Verify/connect an existing account                              |
+| `GET /api/overview`                                       | Scoped metrics and worker presence                              |
+| `GET /api/events`                                         | Authenticated change stream                                     |
+| `GET /api/integrations/slack/connect`                     | Actual Slack authorization                                      |
+| `DELETE /api/integrations/slack`                          | Disconnect and revoke                                           |
+| `GET /api/notifications`                                  | Notification delivery history                                   |
 
 ## Tests and evidence
 
@@ -185,7 +187,7 @@ The root password above is the Compose **local development default**, not a prod
 
 The browser suite uses `reachinbox_e2e`, Redis DB 3 and port 4201, resetting only that isolated test data. Install its Chromium binary with `npx playwright install chromium --with-deps` when needed. It records a local technical preview and commits no credentials. Google and Slack secrets in your normal `.env` are intentionally disabled for this isolated demo-access scenario.
 
-OAuth redirect/state checks are automated; full Google account consent and live Slack installation must be verified with account-owned credentials. Slack transport in the isolated integration suite uses a clearly identified local HTTP fixture, **not a fake claim of live Slack delivery**. See [validation notes](docs/VALIDATION.md) and [demo guide](docs/DEMO.md).
+OAuth redirect/state checks are automated. Real Google account consent, Slack installation and a live webhook delivery were separately verified with account-owned credentials. The isolated integration suite uses a local HTTP fixture for repeatable Slack transport checks. See [validation notes](docs/VALIDATION.md) and [demo guide](docs/DEMO.md) for the distinction between automated checks, live evidence and the final recording.
 
 ## Docker and deployment
 

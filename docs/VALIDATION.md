@@ -29,15 +29,19 @@ The browser acceptance suite exercises the complete CSV workflow, invalid/duplic
 
 The complete browser acceptance scenario passed: actual CSV upload, cancellation, abrupt restart, two real SMTP sends, indexed search, 390px mobile layout and logout. The corrected Docker image also passed its runtime smoke check: Node 22/Alpine, UID 1000, development dependencies absent, with health/OpenAPI/Swagger/compiled frontend all returning HTTP 200.
 
-The implementation uses the real Google and Slack authorization endpoints. Automated checks cover authorization parameters, Google PKCE/nonce, session-bound state and rejected callback state. Real Google account consent was completed on 6 October 2026: the provider callback succeeded, the following authenticated session request returned HTTP 200, and a non-demo Google identity was persisted in the application database. Slack installation and live channel delivery remain pending.
+The implementation uses the real Google and Slack authorization endpoints. Automated checks cover authorization parameters, Google PKCE/nonce, session-bound state and rejected callback state. Real Google account consent was completed on 6 October 2026: the provider callback succeeded, the following authenticated session request returned HTTP 200, and a non-demo Google identity was persisted in the application database. The user also completed real Slack OAuth consent and confirmed that the dashboard showed Slack Connected.
 
-The integration test routes only the Slack notification transport to a **local HTTP fixture**. That verifies throttling-triggered outbox dispatch and sender/hour deduplication. It does **not** prove an actual Slack installation or receipt in a workspace. Complete the OAuth installation and show a real message in the selected Slack channel before claiming this requirement verified.
+An additional live check used that actual Google workspace and OAuth-installed Slack webhook. At **2026-10-05 20:06 UTC (6 October, 01:36 IST)**, a fresh real Ethereal sender with an hourly cap of one scheduled two recipients. One email was accepted by SMTP with one attempt and an actual preview URL; the other stayed deferred with zero attempts until **21:00 UTC (02:30 IST)**. The real HTTPS Slack webhook accepted the alert on its first delivery attempt, and the notification outbox recorded delivery with no error. Sanitized database evidence is committed in [`evidence/live-integrations.json`](evidence/live-integrations.json). Visual channel receipt and the account recording are tracked separately from transport acceptance.
 
-The local technical preview uses clearly labelled demo access and real Ethereal SMTP. It is supporting evidence; the final account demonstration must include real Google sign-in and live Slack.
+The isolated integration test still routes Slack transport to a **local HTTP fixture** to reproduce outbox dispatch and sender/hour deduplication without sending repeated workspace messages. That fixture is separate from the verified live webhook check above.
+
+The [final 2m 16s recording](recordings/final-demo.webm) includes a second actual cap-one campaign created through the browser in the real Google workspace. It captures CSV parsing, schedule creation, one accepted SMTP delivery with one attempt, the second recipient deferred, and the fresh Slack alert's Delivered status. Both live Slack notifications succeeded on their first attempt. Its account section reuses the already authenticated Google session; provider consent screens and the Slack channel itself are not recorded. The appended technical section clearly labels local demo access and shows actual restart recovery, SMTP, search and mobile behavior.
 
 ## Reproduce
 
 GitHub's [quality workflow](https://github.com/VanshKaushal/reachinbox-scheduler/actions/runs/37361728435) passed on Linux for commit `c054623`, including strict TypeScript, unit contracts, production builds and a Docker build. The locally tested mobile interface also reports zero axe WCAG A/AA violations at 390px.
+
+The subsequent documentation commit's workflow could not obtain a hosted runner: GitHub reported “The job was not acquired by Runner of type hosted even after multiple attempts.” No check steps ran in that attempt. A retry was requested; this infrastructure failure does not replace the successful executable checks above.
 
 Follow the README to start infrastructure and create both isolated test databases. Then run:
 
@@ -63,4 +67,4 @@ Reports/logs/videos under `artifacts/` are gitignored and regenerated locally. C
 - Indexing is eventually consistent. Search reports unavailability while normal scheduling/delivery remains usable.
 - The 1,001-recipient check verifies persistence and queue handoff; it is not a claim that 1,001 SMTP messages were delivered in the test.
 - GitHub collaborator invitations are pending until reviewers accept. A personal private repository uses GitHub's standard collaborator write role.
-- Public deployment and account consent remain separate from local test success.
+- Public deployment has not been performed; real Google and Slack account consent were verified locally.

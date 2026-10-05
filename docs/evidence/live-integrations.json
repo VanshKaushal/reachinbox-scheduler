@@ -1,0 +1,81 @@
+{
+  "verifiedAtUtc": "2026-10-05T20:11:20.537Z",
+  "environment": "Actual local application database, real Google OAuth account, real Slack OAuth-installed incoming webhook, real Ethereal SMTP",
+  "google": {
+    "nonDemoIdentityPersisted": true,
+    "providerConsentConfirmedByUser": true
+  },
+  "slack": {
+    "oauthConnectionPersisted": true,
+    "connectionConfirmedByUser": true,
+    "transport": "HTTPS POST to hooks.slack.com; successful response recorded by the outbox relay",
+    "deliveries": [
+      {
+        "attempts": 1,
+        "delivered_at": "2026-10-05T20:06:07.326Z",
+        "hasError": 0
+      }
+    ]
+  },
+  "campaign": {
+    "recipientCount": 2,
+    "senderHourlyLimit": 1,
+    "minimumDelayMilliseconds": 2000,
+    "emails": [
+      {
+        "status": "sent",
+        "attempts": 1,
+        "scheduled_at": "2026-10-05T20:06:06.515Z",
+        "sent_at": "2026-10-05T20:06:09.896Z",
+        "hasPreview": 1
+      },
+      {
+        "status": "deferred",
+        "attempts": 0,
+        "scheduled_at": "2026-10-05T21:00:00.000Z",
+        "sent_at": null,
+        "hasPreview": 0
+      }
+    ]
+  },
+  "privacy": "Account identifiers, addresses, credentials, webhook URLs and message preview URLs omitted",
+  "limitations": [
+    "The video reuses the authenticated real Google session; it does not replay Google or Slack consent screens.",
+    "Slack webhook acceptance and dashboard delivery status are recorded; a Slack channel screenshot is not included."
+  ],
+  "recordedLiveCheck": {
+    "verifiedAtUtc": "2026-10-05T20:17:36.277Z",
+    "recipientCount": 2,
+    "campaignHourlyLimit": 1,
+    "browserUsesExistingRealGoogleOAuthSession": true,
+    "newSlackWebhookCallDuringRecording": true,
+    "emails": [
+      {
+        "status": "sent",
+        "attempts": 1,
+        "scheduled_at": "2026-10-05T20:15:00.000Z",
+        "sent_at": "2026-10-05T20:15:03.046Z",
+        "hasPreview": 1
+      },
+      {
+        "status": "deferred",
+        "attempts": 0,
+        "scheduled_at": "2026-10-05T21:00:00.000Z",
+        "sent_at": null,
+        "hasPreview": 0
+      }
+    ],
+    "liveSlackDeliveries": [
+      {
+        "attempts": 1,
+        "delivered_at": "2026-10-05T20:06:07.326Z",
+        "hasError": 0
+      },
+      {
+        "attempts": 1,
+        "delivered_at": "2026-10-05T20:15:00.765Z",
+        "hasError": 0
+      }
+    ]
+  }
+}
